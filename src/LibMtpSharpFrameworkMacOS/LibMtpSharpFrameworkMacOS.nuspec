@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>LibMtpSharpFramework</id>
+    <version>0.1.5</version>
+    <title>LibMtpSharpFramework</title>
+    <authors>Alexandr Shevchenko Legimi</authors>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/shaosss/libMtpSharp/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The wrapper of LibMtp library for .Net Framework with MacOS dependencies</description>
+    <releaseNotes>Added MacOS dependencies with new methods for handling Kindle devices</releaseNotes>
+    <copyright>Copyright © 2023 Legimi</copyright>
+    <dependencies>
+      <dependency id="Optional" version="4.0.0" />
+    </dependencies>
+  </metadata>
+</package>
