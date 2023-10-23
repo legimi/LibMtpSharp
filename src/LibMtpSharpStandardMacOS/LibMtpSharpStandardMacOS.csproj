@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <Version>0.1.5</Version>
+    <Title>LibMtpSharpStandardMacOS</Title>
+    <Authors>Alexandr Shevchenko Legimi</Authors>
+    <Description>The wrapper of LibMtp library for .Net Standard with MacOS dependencies</Description>
+    <Copyright>Copyright © 2023 Legimi</Copyright>
+    <PackageReleaseNotes>Added MacOS dependencies with new methods for handling Kindle devices</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Content Include="../../lib/MacOS/output/lib/libmtp.dylib">
+      <PackagePath>runtimes/osx/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../../lib/MacOS/output/lib/libcharset.dylib">
+      <PackagePath>runtimes/osx/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../../lib/MacOS/output/lib/libgcrypt.dylib">
+      <PackagePath>runtimes/osx/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../../lib/MacOS/output/lib/libgpg-error.dylib">
+      <PackagePath>runtimes/osx/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../../lib/MacOS/output/lib/libiconv.dylib">
+      <PackagePath>runtimes/osx/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="../../lib/MacOS/output/lib/libusb-1.0.dylib">
+      <PackagePath>runtimes/osx/native/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <EmbeddedResource Update="MTPZ.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MTPZ.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Update="MTPZ.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MTPZ.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Optional" Version="4.0.0" />
+  </ItemGroup>
+</Project>
