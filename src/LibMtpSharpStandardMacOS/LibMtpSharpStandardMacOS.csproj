@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>9</LangVersion>
-    <Version>0.1.6</Version>
+    <Version>0.1.8</Version>
     <Title>LibMtpSharpStandardMacOS</Title>
     <Authors>Alexandr Shevchenko Legimi</Authors>
     <Description>The wrapper of LibMtp library for .Net Standard with MacOS dependencies</Description>
