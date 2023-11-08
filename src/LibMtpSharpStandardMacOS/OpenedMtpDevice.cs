@@ -144,8 +144,8 @@ namespace LibMtpSharpStandardMacOS
 
         public void CopyFileFromDevice(uint fileId, string destinationPath)
         {
-            if (string.IsNullOrEmpty(destinationPath))
-                throw new ArgumentException("Value cannot be null or empty.", nameof(destinationPath));
+            if (string.IsNullOrWhiteSpace(destinationPath))
+                throw new ArgumentException(nameof(destinationPath));
 
             if (LibMtpLibrary.GetFileToFile(_mptDeviceStructPointer, fileId, destinationPath, null) != 0)
                 throw new CopyFileFromDeviceException(fileId, destinationPath);

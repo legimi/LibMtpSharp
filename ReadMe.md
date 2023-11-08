@@ -23,6 +23,30 @@ You can see all the packages and differences in the table below:
 
 The dependencies package include following libraries: libgcrypt, libgpg-error, libiconv, libcharset and libusb.
 
+## How to compile this project?
+
+Requirements: homebrew, correctly configured Xcode command line tools, dotnet 6.0.x
+
+Compilation of libmtp with dependencies:
+
+```
+cd ~
+git clone https://github.com/shaosss/LibMtpSharp
+cd LibMtpSharp/lib/MacOS
+chmod +x buildNativeLibs.sh
+mkdir input
+cd input
+./../buildNativeLibs.sh ~/LibMtpSharp/lib ~/LibMtpSharp/lib/MacOS/output
+```
+
+Building LibMtpSharp.Native.MacOS.WithDependencies:
+
+```
+cd ../../..
+dotnet build ./lib/MacOS/LibMtpSharp.Native.MacOS.WithDependencies/LibMtpSharp.Native.MacOS.WithDependencies.csproj
+```
+For our purpose, we are using only `LibMtpSharpStandardMacOS`.
+
 ## What has been changed in native libmtp?
 
 The libmtp native library in the packages contains followinf changes:
