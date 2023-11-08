@@ -31,7 +31,7 @@ Compilation of libmtp with dependencies:
 
 ```
 cd ~
-git clone https://github.com/shaosss/LibMtpSharp
+git clone https://github.com/legimi/LibMtpSharp
 cd LibMtpSharp/lib/MacOS
 chmod +x buildNativeLibs.sh
 mkdir input
