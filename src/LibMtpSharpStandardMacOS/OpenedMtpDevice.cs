@@ -86,24 +86,38 @@ namespace LibMtpSharpStandardMacOS
             uint parentId = LibMtpLibrary.LibmtpFilesAndFoldersRoot) =>
             GetFolderContent(storageId, parentId).Where(x => x.Filetype != FileTypeEnum.Folder);
 
-        public Option<FileStruct> GetFile(uint storageId, string fileName, string fileExtension) =>
-            GetMatchingItem(storageId, x =>
+        public Option<FileStruct> GetFile(uint storageId, string fileName, string fileExtension)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentException(nameof(fileName));
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                throw new ArgumentException(nameof(fileExtension));
+
+            return GetMatchingItem(storageId, x =>
             {
                 if (x.Filetype == FileTypeEnum.Folder)
                     return false;
 
                 var extension = Path.GetExtension(x.FileName);
-                if (string.Compare(fileExtension.TrimStart('.'), extension.TrimStart('.'), StringComparison.InvariantCultureIgnoreCase) != 0)
+                if (string.Compare(fileExtension.TrimStart('.'), extension.TrimStart('.'),
+                        StringComparison.InvariantCultureIgnoreCase) != 0)
                     return false;
 
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(x.FileName);
-                return string.Compare(fileNameWithoutExtension, fileName, StringComparison.InvariantCultureIgnoreCase) == 0;
+                return string.Compare(fileNameWithoutExtension, fileName,
+                    StringComparison.InvariantCultureIgnoreCase) == 0;
             });
+        }
 
-        public Option<FileStruct> GetDirectory(uint storageId, string directoryName) =>
-            GetMatchingItem(storageId, x =>
+        public Option<FileStruct> GetDirectory(uint storageId, string directoryName)
+        {
+            if (string.IsNullOrWhiteSpace(directoryName))
+                throw new ArgumentException(nameof(directoryName));
+
+            return GetMatchingItem(storageId, x =>
                 string.Compare(x.FileName, directoryName, StringComparison.InvariantCultureIgnoreCase) == 0
                 && x.Filetype == FileTypeEnum.Folder);
+        }
 
         private Option<FileStruct> GetMatchingItem(uint storageId, Func<FileStruct, bool> predicate, uint parentId = LibMtpLibrary.LibmtpFilesAndFoldersRoot)
         {
@@ -127,6 +141,11 @@ namespace LibMtpSharpStandardMacOS
 
         public void CopyFileToDevice(string filePath, string destFileName, uint storageId, uint parentId = LibMtpLibrary.LibmtpFilesAndFoldersRoot)
         {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException(nameof(filePath));
+            if (string.IsNullOrWhiteSpace(destFileName))
+                throw new ArgumentException(nameof(destFileName));
+
             var fileInfo = new FileInfo(filePath);
             var fileStruct = new FileStruct
             {
@@ -164,6 +183,9 @@ namespace LibMtpSharpStandardMacOS
 
         public uint CreateFolder(string name, uint parentStorageId, uint parentFolderId = LibMtpLibrary.LibmtpFilesAndFoldersRoot)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException(nameof(name));
+
             var newFolderId =
                 LibMtpLibrary.CreateFolder(_mptDeviceStructPointer, name, parentFolderId, parentStorageId);
             if (newFolderId == 0)
