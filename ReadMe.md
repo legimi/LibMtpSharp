@@ -25,9 +25,9 @@ The dependencies package include following libraries: libgcrypt, libgpg-error, l
 
 ## How to compile this project?
 
-Requirements: homebrew, correctly configured Xcode command line tools, dotnet 6.0.x
+Requirements: homebrew, correctly configured Xcode command line tools, dotnet 6.0.x, wget
 
-Compilation of libmtp with dependencies:
+Compilation of libmtp with dependencies (assuming that `LibMtpSharp` is located in `~/LibMtpSharp` path):
 
 ```
 cd ~
