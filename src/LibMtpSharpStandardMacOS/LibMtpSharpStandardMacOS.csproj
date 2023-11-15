@@ -12,42 +12,12 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <Content Include="../../lib/MacOS/output/lib/libmtp.dylib">
-      <PackagePath>runtimes/osx/native/</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Include="../../lib/MacOS/output/lib/libcharset.dylib">
-      <PackagePath>runtimes/osx/native/</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Include="../../lib/MacOS/output/lib/libgcrypt.dylib">
-      <PackagePath>runtimes/osx/native/</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Include="../../lib/MacOS/output/lib/libgpg-error.dylib">
-      <PackagePath>runtimes/osx/native/</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Include="../../lib/MacOS/output/lib/libiconv.dylib">
-      <PackagePath>runtimes/osx/native/</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Include="../../lib/MacOS/output/lib/libusb-1.0.dylib">
-      <PackagePath>runtimes/osx/native/</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-  </ItemGroup>
-
-
   <ItemGroup>
     <EmbeddedResource Update="MTPZ.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MTPZ.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
 
   <ItemGroup>
     <Compile Update="MTPZ.Designer.cs">
@@ -56,7 +26,6 @@
       <DependentUpon>MTPZ.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Optional" Version="4.0.0" />
