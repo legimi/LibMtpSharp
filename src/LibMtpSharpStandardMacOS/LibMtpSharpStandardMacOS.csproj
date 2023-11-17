@@ -10,6 +10,7 @@
     <Copyright>Copyright © 2023 Legimi</Copyright>
     <PackageReleaseNotes>Added MacOS dependencies with new methods for handling Kindle devices</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,5 +30,6 @@
 
   <ItemGroup>
     <PackageReference Include="Optional" Version="4.0.0" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
   </ItemGroup>
 </Project>
