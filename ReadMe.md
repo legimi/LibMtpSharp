@@ -52,6 +52,12 @@ For our purpose, we are using only `LibMtpSharpStandardMacOS`.
 ## Overview
 This note explains the use of `install_name_tool` for setting the install name of a dynamic library (`.dylib`) and updating its dependencies' paths in macOS. It also covers how to verify these changes with `otool`. Adjusting these paths is crucial for ensuring that the dynamic libraries remain valid and accessible when releasing an application to users.
 
+## Prerequisites
+### Xcode Command Line Tools
+- `install_name_tool` is part of the Command Line Tools for Xcode.
+- You can install the Command Line Tools by running `xcode-select --install` in the Terminal.
+- This is necessary for using `install_name_tool` and other development utilities.
+
 ## Importance of Changing Library Paths
 Dynamic libraries (`dylib` files) in macOS use install names and paths to locate each other. When developing an application, these paths often point to locations on the developer's machine. However, these paths will not be valid on a user's machine. To ensure that the application can correctly locate and load its libraries on any user's system, the paths need to be set relative to the application's executable. This is achieved using the `@executable_path` variable, which makes the application self-contained and portable.
 
@@ -88,6 +94,15 @@ otool -L /path/to/library.dylib
 ````
 
 This command lists the dependencies of the dylib and shows their paths. Ensure that all the required paths now correctly point to `@executable_path/../MonoBundle/`.
+
+### 4.Including Dylibs in a macOS Project:
+To include a dynamic library in your macOS project, add it in your project configuration file like this:
+```xml
+  <Content Include="library_name.dylib">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </Content>
+```
+This ensures that the dylib file is always copied to the output directory of your project during the build process.
 
 ## What has been changed in native libmtp?
 
