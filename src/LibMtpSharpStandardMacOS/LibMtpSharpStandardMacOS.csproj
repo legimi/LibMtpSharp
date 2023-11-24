@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>9</LangVersion>
-    <Version>0.1.9</Version>
+    <Version>0.1.10</Version>
     <Title>LibMtpSharpStandardMacOS</Title>
     <Authors>Alexandr Shevchenko Legimi</Authors>
     <Description>The wrapper of LibMtp library for .Net Standard with MacOS dependencies</Description>
     <Copyright>Copyright © 2023 Legimi</Copyright>
-    <PackageReleaseNotes>Added MacOS dependencies with new methods for handling Kindle devices</PackageReleaseNotes>
+    <PackageReleaseNotes>Added new method for reading files from device as byte array</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 

@@ -18,6 +18,7 @@ namespace LibMtpSharpStandardMacOS
         private readonly IntPtr _mptDeviceStructPointer;
         private readonly bool _cached;
         private readonly uint _vendorId;
+        private readonly MemoryStream _memoryStream = new MemoryStream();
 
         public OpenedMtpDevice(ref RawDevice rawDevice, bool cached)
         {
@@ -166,8 +167,32 @@ namespace LibMtpSharpStandardMacOS
             if (string.IsNullOrWhiteSpace(destinationPath))
                 throw new ArgumentException(nameof(destinationPath));
 
-            if (LibMtpLibrary.GetFileToFile(_mptDeviceStructPointer, fileId, destinationPath, null) != 0)
+            var result = LibMtpLibrary.GetFileToFile(_mptDeviceStructPointer, fileId, destinationPath, null);
+            if (result != 0)
+            {
+                LibMtpLibrary.DumpErrorStack(_mptDeviceStructPointer);
                 throw new CopyFileFromDeviceException(fileId, destinationPath);
+            }
+        }
+
+        public byte[] GetFileToByteArray(uint fileId)
+        {
+            LibMtpLibrary.GetFileToHandler(_mptDeviceStructPointer, fileId, PutFuncToGetFile, null);
+
+            var data = _memoryStream.ToArray();
+            _memoryStream.SetLength(0);
+            _memoryStream.Position = 0;
+            return data;
+        }
+
+        private ushort PutFuncToGetFile(IntPtr parameters, IntPtr priv, uint sendlen, IntPtr data, out uint putlen)
+        {
+            var buffer = new byte[sendlen];
+            Marshal.Copy(data, buffer, 0, (int)sendlen);
+            _memoryStream.Write(buffer, 0, (int)sendlen);
+
+            putlen = sendlen;
+            return 0;
         }
 
         public void Dispose()
