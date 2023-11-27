@@ -44,7 +44,7 @@ namespace LibMtpSharpStandardMacOS.NativeAPI
         /// </summary>
         internal const int Pack = 0;
 
-        public const string LibUsbNativeLibrary = "libusb-1.0";
+        public const string LibUsbNativeLibrary = "libusb-1.0.0.dylib";
 
         static UsbLibrary()
         {
