@@ -18,6 +18,7 @@ namespace LibMtpSharpStandardMacOS
         private readonly IntPtr _mptDeviceStructPointer;
         private readonly bool _cached;
         private readonly uint _vendorId;
+        private readonly MemoryStream _memoryStream = new MemoryStream();
 
         public OpenedMtpDevice(ref RawDevice rawDevice, bool cached)
         {
@@ -86,54 +87,69 @@ namespace LibMtpSharpStandardMacOS
             uint parentId = LibMtpLibrary.LibmtpFilesAndFoldersRoot) =>
             GetFolderContent(storageId, parentId).Where(x => x.Filetype != FileTypeEnum.Folder);
 
-        public Option<FileStruct> GetFile(uint storageId, string fileName, string fileExtension)
+        public Option<FileStruct> GetFile(uint storageId, string filePath)
         {
-            if (string.IsNullOrWhiteSpace(fileName))
-                throw new ArgumentException(nameof(fileName));
-            if (string.IsNullOrWhiteSpace(fileExtension))
-                throw new ArgumentException(nameof(fileExtension));
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException(nameof(filePath));
 
-            return GetMatchingItem(storageId, x =>
-            {
-                if (x.Filetype == FileTypeEnum.Folder)
-                    return false;
+            var pathParts = filePath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
-                var extension = Path.GetExtension(x.FileName);
-                if (string.Compare(fileExtension.TrimStart('.'), extension.TrimStart('.'),
-                        StringComparison.InvariantCultureIgnoreCase) != 0)
-                    return false;
-
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(x.FileName);
-                return string.Compare(fileNameWithoutExtension, fileName,
-                    StringComparison.InvariantCultureIgnoreCase) == 0;
-            });
+            return FindFileRecursive(storageId, LibMtpLibrary.LibmtpFilesAndFoldersRoot, pathParts, 0);
         }
 
-        public Option<FileStruct> GetDirectory(uint storageId, string directoryName)
+        private Option<FileStruct> FindFileRecursive(uint storageId, uint folderId, IReadOnlyList<string> pathParts, int pathIndex)
         {
-            if (string.IsNullOrWhiteSpace(directoryName))
-                throw new ArgumentException(nameof(directoryName));
+            var filesAndFolders = GetFolderContent(storageId, folderId);
 
-            return GetMatchingItem(storageId, x =>
-                string.Compare(x.FileName, directoryName, StringComparison.InvariantCultureIgnoreCase) == 0
-                && x.Filetype == FileTypeEnum.Folder);
+            foreach (var item in filesAndFolders)
+            {
+                if (item.Filetype == FileTypeEnum.Folder)
+                {
+                    if (item.FileName == pathParts[pathIndex] && pathIndex < pathParts.Count - 1)
+                    {
+                        var result = FindFileRecursive(storageId, item.ItemId, pathParts, pathIndex + 1);
+                        if (result.HasValue)
+                            return result;
+                    }
+                }
+                else
+                {
+                    if (item.FileName == pathParts[pathIndex] && pathIndex == pathParts.Count - 1)
+                        return item.Some();
+                }
+            }
+
+            return Option.None<FileStruct>();
         }
 
-        private Option<FileStruct> GetMatchingItem(uint storageId, Func<FileStruct, bool> predicate, uint parentId = LibMtpLibrary.LibmtpFilesAndFoldersRoot)
+        public Option<FileStruct> GetDirectory(uint storageId, string directoryPath)
         {
-            var filesStruct = GetFolderContent(storageId, parentId);
+            if (string.IsNullOrWhiteSpace(directoryPath))
+                throw new ArgumentException(nameof(directoryPath));
 
-            foreach (var fileStruct in filesStruct)
+            var pathParts = directoryPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return FindFolderRecursive(storageId, LibMtpLibrary.LibmtpFilesAndFoldersRoot, pathParts, 0);
+        }
+
+        private Option<FileStruct> FindFolderRecursive(uint storageId, uint folderId, string[] pathParts, int pathIndex)
+        {
+            var filesAndFolders = GetFolderContent(storageId, folderId);
+
+            foreach (var item in filesAndFolders)
             {
-                if (predicate(fileStruct))
-                    return fileStruct.Some();
-
-                if (fileStruct.Filetype != FileTypeEnum.Folder)
+                if (item.Filetype != FileTypeEnum.Folder)
                     continue;
 
-                var matchingSubFile = GetMatchingItem(storageId, predicate, fileStruct.ItemId);
-                if (matchingSubFile.HasValue)
-                    return matchingSubFile;
+                if (item.FileName == pathParts[pathIndex])
+                {
+                    if (pathIndex == pathParts.Length - 1)
+                        return item.Some();
+
+                    var result = FindFolderRecursive(storageId, item.ItemId, pathParts, pathIndex + 1);
+                    if (result.HasValue)
+                        return result;
+                }
             }
 
             return Option.None<FileStruct>();
@@ -166,8 +182,32 @@ namespace LibMtpSharpStandardMacOS
             if (string.IsNullOrWhiteSpace(destinationPath))
                 throw new ArgumentException(nameof(destinationPath));
 
-            if (LibMtpLibrary.GetFileToFile(_mptDeviceStructPointer, fileId, destinationPath, null) != 0)
+            var result = LibMtpLibrary.GetFileToFile(_mptDeviceStructPointer, fileId, destinationPath, null);
+            if (result != 0)
+            {
+                LibMtpLibrary.DumpErrorStack(_mptDeviceStructPointer);
                 throw new CopyFileFromDeviceException(fileId, destinationPath);
+            }
+        }
+
+        public byte[] GetFileToByteArray(uint fileId)
+        {
+            LibMtpLibrary.GetFileToHandler(_mptDeviceStructPointer, fileId, PutFuncToGetFile, null);
+
+            var data = _memoryStream.ToArray();
+            _memoryStream.SetLength(0);
+            _memoryStream.Position = 0;
+            return data;
+        }
+
+        private ushort PutFuncToGetFile(IntPtr parameters, IntPtr priv, uint sendlen, IntPtr data, out uint putlen)
+        {
+            var buffer = new byte[sendlen];
+            Marshal.Copy(data, buffer, 0, (int)sendlen);
+            _memoryStream.Write(buffer, 0, (int)sendlen);
+
+            putlen = sendlen;
+            return 0;
         }
 
         public void Dispose()
