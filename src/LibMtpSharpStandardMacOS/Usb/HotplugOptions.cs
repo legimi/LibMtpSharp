@@ -1,3 +1,6 @@
+// Modifications made by Legimi in 2023.
+// Based on https://github.com/LibUsbDotNet/LibUsbDotNet
+
 using LibMtpSharpStandardMacOS.Structs;
 
 namespace LibMtpSharpStandardMacOS.Usb

@@ -18,7 +18,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. or 
 // visit www.gnu.org.
 //
-//
+// Modifications made by Legimi in 2023.
+// Based on https://github.com/LibUsbDotNet/LibUsbDotNet
 
 using System;
 
