@@ -53,7 +53,7 @@ namespace LibMtpSharpStandardMacOS.NativeAPI
     /// </summary>
     internal partial class LibMtpLibrary
     {
-        private const string LibMtpName = "libmtp";
+        private const string LibMtpName = "libmtp.9.dylib";
 
         [DllImport(LibMtpName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void LIBMTP_Init();

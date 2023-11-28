@@ -13,7 +13,7 @@ You can see all the packages and differences in the table below:
 | Package name                                | Latest Version | Content                                                                                                                | Usage Instructions                                                          |
 |---------------------------------------------|----------------|------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | LibMtpSharp                                 | 0.1.3          | Contains the wrapper managed code. API coverage is limited and will improve in future versions.                        | Main package with logic. Required to be able to use libmpt                  |
-| LibMtpSharpStandardMacOS                    | 0.1.6          | Contains the wrapper managed code with MacOS dependencies for .Net standard                                            | Main package with logic for .Net standard when you target MacOS             |
+| LibMtpSharpStandardMacOS                    | 0.1.11         | Contains the wrapper managed code with MacOS dependencies for .Net standard                                            | Main package with logic for .Net standard when you target MacOS             |
 | LibMtpSharp.Native.Linux                    | 1.1.20-beta    | Linux native Libmtp library with custom improvements built for x64                                                     | Use if you target linux and instruct the user how to install dependencies   |
 | LibMtpSharp.Native.Linux.WithDependencies   | 1.1.20-beta    | Linux native dependencies built for x64 and references LibMtpSharp.Native.Linux package.                               | Use if you target linux and don't want user to manage dependencies          |
 | LibMtpSharp.Native.MacOS                    | 1.1.20-beta    | MacOS native Libmtp library with custom improvements built for x64 (not sure if will work on M1)                       | Use if you target MacOS and instruct the user how to install dependencies   |
@@ -22,6 +22,87 @@ You can see all the packages and differences in the table below:
 | LibMtpSharp.Native.Windows.WithDependencies | 1.1.20-beta    | Windows native dependencies built for x64 and references LibMtpSharp.Native.Windows package.                           | Use if you target Windows and don't want user to manage dependencies        |
 
 The dependencies package include following libraries: libgcrypt, libgpg-error, libiconv, libcharset and libusb.
+
+## How to compile this project?
+
+Requirements: homebrew, correctly configured Xcode command line tools, dotnet 6.0.x, wget
+
+Compilation of libmtp with dependencies (assuming that `LibMtpSharp` is located in `~/LibMtpSharp` path):
+
+```
+cd ~
+git clone https://github.com/legimi/LibMtpSharp
+cd LibMtpSharp/lib/MacOS
+chmod +x buildNativeLibs.sh
+mkdir input
+cd input
+./../buildNativeLibs.sh ~/LibMtpSharp/lib ~/LibMtpSharp/lib/MacOS/output
+```
+
+Building LibMtpSharp.Native.MacOS.WithDependencies:
+
+```
+cd ../../..
+dotnet build ./lib/MacOS/LibMtpSharp.Native.MacOS.WithDependencies/LibMtpSharp.Native.MacOS.WithDependencies.csproj
+```
+For our purpose, we are using only `LibMtpSharpStandardMacOS`.
+
+# Using install_name_tool and otool in macOS
+
+## Overview
+This note explains the use of `install_name_tool` for setting the install name of a dynamic library (`.dylib`) and updating its dependencies' paths in macOS. It also covers how to verify these changes with `otool`. Adjusting these paths is crucial for ensuring that the dynamic libraries remain valid and accessible when releasing an application to users.
+
+## Prerequisites
+### Xcode Command Line Tools
+- `install_name_tool` is part of the Command Line Tools for Xcode.
+- You can install the Command Line Tools by running `xcode-select --install` in the Terminal.
+- This is necessary for using `install_name_tool` and other development utilities.
+
+## Importance of Changing Library Paths
+Dynamic libraries (`dylib` files) in macOS use install names and paths to locate each other. When developing an application, these paths often point to locations on the developer's machine. However, these paths will not be valid on a user's machine. To ensure that the application can correctly locate and load its libraries on any user's system, the paths need to be set relative to the application's executable. This is achieved using the `@executable_path` variable, which makes the application self-contained and portable.
+
+## Steps
+
+### 1. Setting the Install Name of a Library
+
+To set the install name of a library, use the following command:
+
+```bash
+install_name_tool -id @executable_path/../MonoBundle/library_name.dylib /path/to/library.dylib
+````
+
+- `library_name.dylib` should be replaced with the actual name of your dylib.
+- `/path/to/library.dylib` is the path to your dylib file.
+
+### 2. Updating Dependency Paths
+For each dependency that needs its path updated, use the following command:
+
+```bash
+install_name_tool -change /path/to/original/dependency.dylib @executable_path/../MonoBundle/dependency.dylib /path/to/library.dylib
+````
+
+- Replace `/path/to/original/dependency.dylib` with the current path of the dependency.
+- `dependency.dylib` is the name of the dependency library.
+- `/path/to/library.dylib` is the path to your dylib file that has this dependency.
+
+Repeat this step for each dependency that needs to be updated.
+
+### 3. Verifying Changes with otool
+After applying the changes, verify them using otool:
+```bash
+otool -L /path/to/library.dylib
+````
+
+This command lists the dependencies of the dylib and shows their paths. Ensure that all the required paths now correctly point to `@executable_path/../MonoBundle/`.
+
+### 4.Including Dylibs in a macOS Project:
+To include a dynamic library in your macOS project, add it in your project configuration file like this:
+```xml
+  <Content Include="library_name.dylib">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </Content>
+```
+This ensures that the dylib file is always copied to the output directory of your project during the build process.
 
 ## What has been changed in native libmtp?
 
